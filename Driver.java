@@ -10,10 +10,10 @@ public class Driver {
 
         public static void main(String[] args) throws InterruptedException, TwitterException {
             
-            SPOTDBcommunication spotSettings = new SPOTDBcommunication("spotSettings");
+            SPOTDBcommunication infolab = new SPOTDBcommunication();
             
             while(true){
-                spotSettings.monitor();
+                infolab.monitorBatteries();
                 Thread.sleep(5000);
             }
             
