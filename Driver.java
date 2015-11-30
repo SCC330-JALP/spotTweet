@@ -13,7 +13,8 @@ public class Driver {
             SPOTDBcommunication infolab = new SPOTDBcommunication();
             
             while(true){
-                infolab.monitorBatteries();
+                infolab.monitor();
+                // infolab.monitorBatteries();
                 Thread.sleep(5000);
             }
             
