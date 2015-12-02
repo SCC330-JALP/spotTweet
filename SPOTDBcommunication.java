@@ -9,6 +9,9 @@ import java.util.concurrent.*;
 public class SPOTDBcommunication{
 
     public static Firebase ref = new Firebase("https://sunsspot.firebaseio.com/");
+    public static Firebase notiRef = new Firebase("https://sunsspot.firebaseio.com/notification");
+    public Notification newEntry = null;
+
     public Firebase spotSettings = null;
     public Firebase spotReadings = null;
 
@@ -379,13 +382,17 @@ public class SPOTDBcommunication{
     //@param {String} msg - Message that you want to tweet.
     public void post(String msg){
         try{
+          update(msg);
           // The factory instance is re-useable and thread safe.
           Twitter twitter = TwitterFactory.getSingleton();
           Status status = twitter.updateStatus(msg);
           System.out.println("Successfully updated the status to [" + status.getText() + "].");
         }catch(TwitterException e){
           System.out.println(e);
+        }catch(InterruptedException e){
+          System.out.println(e);
         }
+        
     }
 
 
@@ -396,6 +403,22 @@ public class SPOTDBcommunication{
         DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
         Date date = new Date();
         return dateFormat.format(date);
+    }
+
+    public void update(String msg) throws InterruptedException{
+
+        final CountDownLatch done = new CountDownLatch(1);
+
+        newEntry = new Notification(msg);
+
+        notiRef.push().setValue(newEntry, new Firebase.CompletionListener() {
+            @Override
+            public void onComplete(FirebaseError firebaseError, Firebase firebase) {
+                System.out.println("done");
+                done.countDown();
+            }
+        });
+        done.await();
     }
 
 }
