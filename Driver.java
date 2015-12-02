@@ -16,6 +16,9 @@ public class Driver {
                 infolab.monitorActivities();
                 infolab.monitorBatteries();
                 infolab.monitorIsLabEmpty();
+                infolab.monitorZone("zone1");
+                infolab.monitorZone("zone2");
+                infolab.monitorZone("zone3");
 
                 Thread.sleep(30000); //2 mins
             }

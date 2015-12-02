@@ -183,45 +183,29 @@ public class SPOTDBcommunication{
     }
 
 
-
-    //Monitor temperature is higher than 35 or less than 20
-    public void monitorZoneTemp(int zoneNumber){
-        spotSettings.addValueEventListener(new ValueEventListener() {
-              
-              @Override
-              public void onDataChange(DataSnapshot snapshot) {
-                  for (DataSnapshot entrySnapshot: snapshot.getChildren()) {
-                    spotSettings entry = entrySnapshot.getValue(spotSettings.class);
-
-                    //Check if battery percentage is less than 10
-                    if(entry.getBattery() < 10){
-                      post("Sensor '" + entry.getName() + "' battery is low. Current percentage: " + entry.getBattery() + "%");
-                    }
-                  }
-              }
-
-              @Override
-              public void onCancelled(FirebaseError firebaseError) {
-                  System.out.println("The read failed: " + firebaseError.getMessage());
-              }
-          });
-    }
-
-
-
     //Monitor light is higher than ??? or less than ???
-    public void monitorZoneLight(int zoneNumber){
-        spotSettings.addValueEventListener(new ValueEventListener() {
+    public void monitorZone(String zoneName){
+
+        com.firebase.client.Query queryRef = ref.child(zoneName).limitToLast(30);
+
+
+        queryRef.addValueEventListener(new ValueEventListener() {
               
               @Override
               public void onDataChange(DataSnapshot snapshot) {
                   for (DataSnapshot entrySnapshot: snapshot.getChildren()) {
-                    spotSettings entry = entrySnapshot.getValue(spotSettings.class);
-
-                    //Check if battery percentage is less than 10
-                    if(entry.getBattery() < 10){
-                      post("Sensor '" + entry.getName() + "' battery is low. Current percentage: " + entry.getBattery() + "%");
+                    Zone entry = entrySnapshot.getValue(Zone.class);
+                    
+                    //If latest temperature is more than 35
+                    if(entry.getTemp() > 35){
+                      post("It's getting hot in here! - " + entry.getTemp() + " degrees celsius");
                     }
+
+                    //If latest temperature is more than 35
+                    if(entry.getTemp() < 20){
+                      post("It's getting cold!  - " + entry.getTemp() + " degrees celsius");
+                    }
+
                   }
               }
 
@@ -347,11 +331,12 @@ public class SPOTDBcommunication{
           });
     }
     public void monitorIsLabEmpty() throws InterruptedException{
-      System.out.println("Scanning data... takes approximately 20 seconds");
+      System.out.println("Scanning data...");
 
       scan();
       Thread.sleep(10000); //10 seconds - Make sure it has enough time to retrieve and analyze all data
 
+      System.out.println("-----------------------------------------");
       System.out.println("Total SP: " + numOfSp);
       System.out.println("Total Inactive SP: " + numOfInactiveSp);
       System.out.println("motionSensors: " + allTrues(motionSensors));
@@ -363,7 +348,7 @@ public class SPOTDBcommunication{
 
       //Check if there's new entries within 10 mins. 
       if(allSpTrues && allTrues(motionSensors) && allTrues(soundSensors) && allTrues(doorSensors)){
-        System.out.println("THERE'S NO ONE IN THE LAB! " + currentTime());
+        post("THERE'S NO ONE IN THE LAB! " + currentTime());
       }else{
         System.out.println("There's someone in the lab.");
       }
