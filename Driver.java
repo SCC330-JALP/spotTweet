@@ -13,14 +13,51 @@ public class Driver {
             SPOTDBcommunication infolab = new SPOTDBcommunication();
             
             while(true){
+                System.out.println("-------------------------");
+                System.out.println("Monitoring Lab Activities");
+                System.out.println("-------------------------");
                 infolab.monitorActivities();
-                infolab.monitorBatteries();
-                infolab.monitorIsLabEmpty();
-                infolab.monitorZone("zone1");
-                infolab.monitorZone("zone2");
-                infolab.monitorZone("zone3");
+                Thread.sleep(1000);
+                
 
-                Thread.sleep(180000); //3 mins
+                System.out.println("Monitoring Batteries");
+                System.out.println("-------------------------");
+                infolab.monitorBatteries();
+                Thread.sleep(1000);                
+
+                System.out.println("Monitoring Zone 1");
+                System.out.println("-------------------------");
+                infolab.monitorZone("zone1");
+                Thread.sleep(1000);
+                
+
+                System.out.println("Monitoring Zone 2");
+                System.out.println("-------------------------");
+                infolab.monitorZone("zone2");
+                Thread.sleep(1000);
+                
+
+                System.out.println("Monitoring Zone 3");
+                System.out.println("-------------------------");
+                infolab.monitorZone("zone3");
+                Thread.sleep(1000);
+
+
+                System.out.println("Monitoring if the lab is empty");
+                System.out.println("-------------------------");
+                infolab.monitorIsLabEmpty();
+                Thread.sleep(3000);
+
+                System.out.println("-------------------------");
+                System.out.println("Clearing Hashmaps");
+                infolab.clear();
+                Thread.sleep(1000);
+
+                System.out.println("-------------------------");
+                System.out.println("Completed @ " + infolab.currentTime());
+                System.out.println("Next scan in 2 minutes...");
+
+                Thread.sleep(120000); //2 mins
             }
             
     }

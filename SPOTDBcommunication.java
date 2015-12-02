@@ -92,10 +92,14 @@ public class SPOTDBcommunication{
                                           Sensor entry = entrySnapshot.getValue(Sensor.class);
                                           
                                           //Within 5 mins
-                                          if(System.currentTimeMillis() - entry.getTimestamp() < 300000){
+                                          if(System.currentTimeMillis() - entry.getTimestamp() < 600000){
                                             DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
                                             Date date = new Date(entry.getTimestamp());
-                                            post("!! Zone: " + zoneNumber + " Motion Detected at " + dateFormat.format(date) + " !!");
+                                            
+                                            Tweet tweetMotion = new Tweet("Tweet-Motion", "!! Zone: " + zoneNumber + " Motion Detected at " + dateFormat.format(date) + " !!");
+                                            tweetMotion.start();
+
+
                                           }
                                         }
                                     }
@@ -126,10 +130,11 @@ public class SPOTDBcommunication{
                                           Sensor entry = entrySnapshot.getValue(Sensor.class);
                                           
                                           //Within 5 mins
-                                          if(System.currentTimeMillis() - entry.getTimestamp() < 300000){
+                                          if(System.currentTimeMillis() - entry.getTimestamp() < 600000){
                                             DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
                                             Date date = new Date(entry.getTimestamp());
-                                            post(" Door Opened at " + dateFormat.format(date));
+                                            Tweet tweetDoor = new Tweet("Thread-Door", " Door Opened at " + dateFormat.format(date));
+                                            tweetDoor.start();
                                           }
                                         }
                                     }
@@ -173,7 +178,9 @@ public class SPOTDBcommunication{
 
                     //Check if battery percentage is less than 10
                     if(entry.getBattery() < 10){
-                      post("Sensor '" + entry.getName() + "' battery is low. Current percentage: " + entry.getBattery() + "%");
+                      Tweet tweetBattery = new Tweet(entry.getName(), "Sensor '" + entry.getName() + "' battery is low. Current percentage: " + entry.getBattery() + "%");
+                      tweetBattery.start();
+                      // post("Sensor '" + entry.getName() + "' battery is low. Current percentage: " + entry.getBattery() + "%");
                     }
                   }
               }
@@ -201,12 +208,14 @@ public class SPOTDBcommunication{
                     
                     //If latest temperature is more than 35
                     if(entry.getTemp() > 35){
-                      post("It's getting hot in here! - " + entry.getTemp() + " degrees celsius");
+                      Tweet tweetTemp = new Tweet("Thread-Temp-hot", "It's getting hot in here! - " + entry.getTemp() + " degrees celsius");
+                      tweetTemp.start();
                     }
 
                     //If latest temperature is more than 35
                     if(entry.getTemp() < 20){
-                      post("It's getting cold!  - " + entry.getTemp() + " degrees celsius");
+                      Tweet tweetTemp2 = new Tweet("Thread-Temp-cold", "It's getting cold!  - " + entry.getTemp() + " degrees celsius");
+                      tweetTemp2.start();
                     }
 
                   }
@@ -284,7 +293,7 @@ public class SPOTDBcommunication{
                                   
                                   //within 10 minutes
                                   if(System.currentTimeMillis() - sensor.getTimestamp() < 600000){
-                                    soundSensors.put(i, false);
+                                    soundSensors.put(i, true);
                                     System.out.println("soundSensors " + i);
                                   }
                                   i++;
@@ -310,7 +319,7 @@ public class SPOTDBcommunication{
                                   
                                   //within 10 minutes
                                   if(System.currentTimeMillis() - sensor.getTimestamp() < 600000){
-                                    doorSensors.put(i, false);
+                                    doorSensors.put(i, true);
                                     System.out.println("doorSensors " + i);
                                   }
                                   i++;
@@ -334,8 +343,6 @@ public class SPOTDBcommunication{
           });
     }
     public void monitorIsLabEmpty() throws InterruptedException{
-      System.out.println("Scanning data...");
-
       scan();
       Thread.sleep(10000); //10 seconds - Make sure it has enough time to retrieve and analyze all data
 
@@ -351,9 +358,10 @@ public class SPOTDBcommunication{
 
       //Check if there's new entries within 10 mins. 
       if(allSpTrues && allTrues(motionSensors) && allTrues(soundSensors) && allTrues(doorSensors)){
-        post("THERE'S NO ONE IN THE LAB! " + currentTime());
+        Tweet tweetIsLabEmpty = new Tweet("Thread-lab-empty", "There's no one in the lab - " + currentTime());
+        tweetIsLabEmpty.start();
       }else{
-        System.out.println("There's someone in the lab.");
+        System.out.println("# There's someone in the lab.");
       }
       
     }
@@ -391,16 +399,17 @@ public class SPOTDBcommunication{
     //@param {String} msg - Message that you want to tweet.
     public void post(String msg){
         try{
-          update(msg);
           // The factory instance is re-useable and thread safe.
           Twitter twitter = TwitterFactory.getSingleton();
           Status status = twitter.updateStatus(msg);
           System.out.println("Successfully updated the status to [" + status.getText() + "].");
+
         }catch(TwitterException e){
           System.out.println(e);
-        }catch(InterruptedException e){
-          System.out.println(e);
         }
+        // catch(InterruptedException e){
+        //   System.out.println(e);
+        // }
         
     }
 
@@ -412,6 +421,14 @@ public class SPOTDBcommunication{
         DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
         Date date = new Date();
         return dateFormat.format(date);
+    }
+
+    //Return the current time value in correct format.
+    //@return - Formatted current date.
+    public void clear(){
+      motionSensors.clear();
+      soundSensors.clear();
+      doorSensors.clear();
     }
 
     public void update(String msg) throws InterruptedException{
