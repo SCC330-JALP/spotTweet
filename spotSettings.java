@@ -1,6 +1,6 @@
 public class spotSettings{
     
-    private boolean alive;
+    private String alive;
     private int battery;
     private String name;
     private String task;
@@ -8,7 +8,7 @@ public class spotSettings{
 
     public spotSettings(){};
 
-    public boolean getAlive(){
+    public String getAlive(){
         return alive;
     }
     
