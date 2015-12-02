@@ -255,7 +255,7 @@ public class SPOTDBcommunication{
                                   
                                   //within 10 minutes
                                   if(System.currentTimeMillis() - sensor.getTimestamp() < 600000){
-                                    motionSensors.put(i, false);
+                                    motionSensors.put(i, true);
                                     System.out.println("motion sensor " + i);
                                   }
                                   i++;
@@ -342,9 +342,9 @@ public class SPOTDBcommunication{
       System.out.println("-----------------------------------------");
       System.out.println("Total SP: " + numOfSp);
       System.out.println("Total Inactive SP: " + numOfInactiveSp);
-      System.out.println("motionSensors: " + allTrues(motionSensors));
-      System.out.println("soundSensors: " + allTrues(soundSensors));
-      System.out.println("doorSensors: " + allTrues(doorSensors));
+      System.out.println("motionSensors: " + motionSensors);
+      System.out.println("soundSensors: " + soundSensors);
+      System.out.println("doorSensors: " + doorSensors);
 
       //If all SPOTs with task "sp" have alive set to false
       Boolean allSpTrues = (numOfSp == numOfInactiveSp) ? true : false;
@@ -365,12 +365,21 @@ public class SPOTDBcommunication{
       //If the map is empty, that means there's no (motion, sound, door) entries within 10 mins
       if(map.isEmpty()){
         return true;
-      }else{
-        for(int i=0;i<map.size();i++){
-          if(!map.get(i)){
-            return false;
-          }
+      }
+
+      for(int i=0;i<map.size();i++){
+
+        //FIX: where there's null value in the hashamp, replace null to 'true'
+        if(map.get(i)==null){
+          map.put(i, true);
         }
+
+        //If there's new entries, that means there's motion, sound, door entries. Return false
+        if(map.get(i)){
+          return false;
+        }
+
+
       }
       
       return true;

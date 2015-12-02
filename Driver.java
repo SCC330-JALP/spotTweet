@@ -20,7 +20,7 @@ public class Driver {
                 infolab.monitorZone("zone2");
                 infolab.monitorZone("zone3");
 
-                Thread.sleep(180000); //2 mins
+                Thread.sleep(180000); //3 mins
             }
             
     }
