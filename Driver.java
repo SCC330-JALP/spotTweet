@@ -14,33 +14,21 @@ public class Driver {
             
             while(true){
                 System.out.println("-------------------------");
-                System.out.println("Monitoring Lab Activities");
-                System.out.println("-------------------------");
+                System.out.println("Monitoring... ");
+                System.out.println("- Lab Activities");
                 infolab.monitorActivities();
-                Thread.sleep(1000);
                 
-
-                System.out.println("Monitoring Batteries");
-                System.out.println("-------------------------");
-                infolab.monitorBatteries();
-                Thread.sleep(1000);                
-
-                System.out.println("Monitoring Zone 1");
-                System.out.println("-------------------------");
+                System.out.println("- Sensor Batteries");
+                infolab.monitorBatteries();     
+                
+                System.out.println("- Zone 1 temperature and light");
                 infolab.monitorZone("zone1");
-                Thread.sleep(1000);
                 
-
-                System.out.println("Monitoring Zone 2");
-                System.out.println("-------------------------");
-                infolab.monitorZone("zone2");
-                Thread.sleep(1000);
+                System.out.println("- Zone 2 temperature and light");
+                infolab.monitorZone("zone2");   
                 
-
-                System.out.println("Monitoring Zone 3");
-                System.out.println("-------------------------");
+                System.out.println("- Zone 3 temperature and light");
                 infolab.monitorZone("zone3");
-                Thread.sleep(1000);
 
 
                 System.out.println("Monitoring if the lab is empty");

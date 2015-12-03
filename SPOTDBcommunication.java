@@ -194,7 +194,7 @@ public class SPOTDBcommunication{
 
 
     //Monitor light is higher than ??? or less than ???
-    public void monitorZone(String zoneName){
+    public void monitorZone(final String zoneName){
 
         com.firebase.client.Query queryRef = ref.child(zoneName).limitToLast(30);
 
@@ -208,14 +208,26 @@ public class SPOTDBcommunication{
                     
                     //If latest temperature is more than 35
                     if(entry.getTemp() > 35){
-                      Tweet tweetTemp = new Tweet("Thread-Temp-hot", "It's getting hot in here! - " + entry.getTemp() + " degrees celsius");
+                      Tweet tweetTemp = new Tweet("Thread-Temp-hot", "It's getting hot in " + zoneName + "! - " + entry.getTemp() + " degrees celsius");
                       tweetTemp.start();
                     }
 
                     //If latest temperature is more than 35
                     if(entry.getTemp() < 20){
-                      Tweet tweetTemp2 = new Tweet("Thread-Temp-cold", "It's getting cold!  - " + entry.getTemp() + " degrees celsius");
+                      Tweet tweetTemp2 = new Tweet("Thread-Temp-cold", "It's getting cold in " + zoneName + "!  - " + entry.getTemp() + " degrees celsius");
                       tweetTemp2.start();
+                    }
+
+                    //If light is greater than 100
+                    if(entry.getLight() > 100){
+                      Tweet tweetLight = new Tweet("Thread-Light-bright", "So bright in " + zoneName + "! - " + entry.getLight() + " (lm)");
+                      tweetLight.start();
+                    }
+
+                    //If light is less than 10
+                    if(entry.getLight() < 10){
+                      Tweet tweetLight2 = new Tweet("Thread-Light-dark", "So dark in " + zoneName + "! Turn on the light? - " + entry.getLight() + " (lm)");
+                      tweetLight2.start();
                     }
 
                   }
