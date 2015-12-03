@@ -300,7 +300,7 @@ public class SPOTDBcommunication{
                     // Count the number of spots called "sp"
                     if(entry.getTask().equals("sp")){
                       numOfSp++;
-                      
+                      System.out.println(entry.getName() + " is " + entry.getAlive());
                       //Count the number of spots called "sp" and it's inactive
                       if(entry.getAlive().equals("false")){
                         numOfInactiveSp++;

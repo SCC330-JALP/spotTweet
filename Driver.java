@@ -13,6 +13,7 @@ public class Driver {
             SPOTDBcommunication infolab = new SPOTDBcommunication();
             
             while(true){
+
                 System.out.println("-------------------------");
                 System.out.println("Monitoring... ");
                 System.out.println("- Lab Activities");
@@ -36,6 +37,7 @@ public class Driver {
 
                 System.out.println("- If lab is empty");
                 System.out.println("-------------------------");
+                infolab.clear();
                 infolab.monitorIsLabEmpty();
                 Thread.sleep(3000);
 
