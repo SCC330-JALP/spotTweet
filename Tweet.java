@@ -1,3 +1,4 @@
+import com.firebase.client.*;
 import twitter4j.*;
 import twitter4j.conf.ConfigurationBuilder;
 import java.util.*;
@@ -9,6 +10,9 @@ class Tweet implements Runnable{
     private String threadName;
     private String msg;
 
+    public static Firebase notiRef = new Firebase("https://sunsspot.firebaseio.com/notification");
+    public Notification newEntry = null;
+
     Tweet(String name, String m){
         threadName = name;
         msg = m;
@@ -19,6 +23,7 @@ class Tweet implements Runnable{
         System.out.println("Running " + threadName);
         post(msg);
         System.out.println("Thread " +  threadName + " exiting.");
+
     }
     
 
@@ -40,11 +45,30 @@ class Tweet implements Runnable{
           Twitter twitter = TwitterFactory.getSingleton();
           Status status = twitter.updateStatus(msg);
           System.out.println("Successfully updated the status to [" + status.getText() + "].");
+          update(msg);
 
         }catch(TwitterException e){
           System.out.println(e);
+        }catch(InterruptedException e){
+            System.out.println(e);
         }
         
+    }
+
+    public void update(String msg) throws InterruptedException{
+
+        final CountDownLatch done = new CountDownLatch(1);
+
+        newEntry = new Notification(msg);
+
+        notiRef.push().setValue(newEntry, new Firebase.CompletionListener() {
+            @Override
+            public void onComplete(FirebaseError firebaseError, Firebase firebase) {
+                System.out.println("done");
+                done.countDown();
+            }
+        });
+        done.await();
     }
 
 }

@@ -19,6 +19,8 @@ public class SPOTDBcommunication{
     public Firebase spotZone = null;
     public int zoneNumber = 0;
 
+    public long todays7am; //in milliseconds
+
     int numOfSp = 0;
     int numOfInactiveSp = 0;
     Map<Integer, Boolean> motionSensors = new HashMap<Integer, Boolean>();
@@ -30,6 +32,35 @@ public class SPOTDBcommunication{
       spotSettings = ref.child("spotSettings");
       spotReadings = ref.child("spotReadings");
 
+      try{
+        todays7am = getTodays7am();
+        System.out.println(todays7am);
+      }catch(ParseException e){
+        System.out.println(e);
+      }
+
+    }
+
+    //Get Today's 7am in milliseconds
+    public long getTodays7am() throws ParseException{
+
+      SimpleDateFormat sdf = new SimpleDateFormat("dd-M-yyyy hh:mm:ss");
+    
+      Calendar calendar = Calendar.getInstance();
+      int dayOfMonth = calendar.get(Calendar.DAY_OF_MONTH);
+      String dayOfMonthStr = String.valueOf(dayOfMonth);
+
+      int monthOfYear = calendar.get(Calendar.MONTH)+1;
+      String monthOfYearStr = String.valueOf(monthOfYear);
+
+      int year = calendar.get(Calendar.YEAR);
+      String yearStr = String.valueOf(year);
+
+      String dateInString = dayOfMonthStr + "-" + monthOfYearStr + "-" + year + " 07:00:00";
+      Date date = sdf.parse(dateInString);
+
+      calendar.setTime(date);
+      return calendar.getTimeInMillis();
     }
 
     //Monitor
@@ -178,9 +209,10 @@ public class SPOTDBcommunication{
 
                     //Check if battery percentage is less than 10
                     if(entry.getBattery() < 10){
-                      Tweet tweetBattery = new Tweet(entry.getName(), "Sensor '" + entry.getName() + "' battery is low. Current percentage: " + entry.getBattery() + "%");
+                      String msg = "Sensor '" + entry.getName() + "' battery is low. Current percentage: " + entry.getBattery() + "%";
+                      Tweet tweetBattery = new Tweet(entry.getName(), msg);
                       tweetBattery.start();
-                      // post("Sensor '" + entry.getName() + "' battery is low. Current percentage: " + entry.getBattery() + "%");
+                      // update(msg)
                     }
                   }
               }
@@ -354,6 +386,7 @@ public class SPOTDBcommunication{
               }
           });
     }
+
     public void monitorIsLabEmpty() throws InterruptedException{
       scan();
       Thread.sleep(10000); //10 seconds - Make sure it has enough time to retrieve and analyze all data
@@ -399,32 +432,10 @@ public class SPOTDBcommunication{
           return false;
         }
 
-
       }
       
       return true;
     }
-
-
-
-    //Post message to Twitter
-    //@param {String} msg - Message that you want to tweet.
-    public void post(String msg){
-        try{
-          // The factory instance is re-useable and thread safe.
-          Twitter twitter = TwitterFactory.getSingleton();
-          Status status = twitter.updateStatus(msg);
-          System.out.println("Successfully updated the status to [" + status.getText() + "].");
-
-        }catch(TwitterException e){
-          System.out.println(e);
-        }
-        // catch(InterruptedException e){
-        //   System.out.println(e);
-        // }
-        
-    }
-
 
 
     //Return the current time value in correct format.
