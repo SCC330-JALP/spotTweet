@@ -10,6 +10,7 @@ public class SPOTDBcommunication{
 
     public static Firebase ref = new Firebase("https://sunsspot.firebaseio.com/");
     public static Firebase notiRef = new Firebase("https://sunsspot.firebaseio.com/notification");
+    public static Firebase kettleRef = new Firebase("https://sunsspot.firebaseio.com/notification");
     public Notification newEntry = null;
 
     public Firebase spotSettings = null;
@@ -20,6 +21,7 @@ public class SPOTDBcommunication{
     public int zoneNumber = 0;
 
     public long todays7am; //in milliseconds
+    public boolean firstPersonEntered = false;
 
     int numOfSp = 0;
     int numOfInactiveSp = 0;
@@ -166,6 +168,15 @@ public class SPOTDBcommunication{
                                             Date date = new Date(entry.getTimestamp());
                                             Tweet tweetDoor = new Tweet("Thread-Door", " Door Opened at " + dateFormat.format(date));
                                             tweetDoor.start();
+                                          }
+
+                                          //First person enter the lab
+                                          if(entry.getTimestamp() > todays7am && firstPersonEntered == false){
+                                            firstPersonEntered = true;
+                                            DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+                                            Date date = new Date(entry.getTimestamp());
+                                            Tweet tweetFirstPerson = new Tweet("Thread-First-Person", " First person entered at " + dateFormat.format(date));
+                                            tweetFirstPerson.start();
                                           }
                                         }
                                     }

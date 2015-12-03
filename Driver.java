@@ -16,6 +16,9 @@ public class Driver {
                 System.out.println("-------------------------");
                 System.out.println("Monitoring... ");
                 System.out.println("- Lab Activities");
+                System.out.println("  - Motion");
+                System.out.println("  - Door sensor");
+                System.out.println("  - First person entered");
                 infolab.monitorActivities();
                 
                 System.out.println("- Sensor Batteries");
@@ -31,7 +34,7 @@ public class Driver {
                 infolab.monitorZone("zone3");
 
 
-                System.out.println("Monitoring if the lab is empty");
+                System.out.println("- If lab is");
                 System.out.println("-------------------------");
                 infolab.monitorIsLabEmpty();
                 Thread.sleep(3000);
