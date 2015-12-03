@@ -10,7 +10,8 @@ public class SPOTDBcommunication{
 
     public static Firebase ref = new Firebase("https://sunsspot.firebaseio.com/");
     public static Firebase notiRef = new Firebase("https://sunsspot.firebaseio.com/notification");
-    public static Firebase kettleRef = new Firebase("https://sunsspot.firebaseio.com/notification");
+    public static Firebase kettleRef = new Firebase("https://sunsspot.firebaseio.com/kettle");
+
     public Notification newEntry = null;
 
     public Firebase spotSettings = null;
@@ -463,6 +464,8 @@ public class SPOTDBcommunication{
       motionSensors.clear();
       soundSensors.clear();
       doorSensors.clear();
+      numOfSp = 0;
+      numOfInactiveSp = 0;
     }
 
     public void update(String msg) throws InterruptedException{
