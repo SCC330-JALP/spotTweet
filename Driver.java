@@ -34,7 +34,7 @@ public class Driver {
                 infolab.monitorZone("zone3");
 
 
-                System.out.println("- If lab is");
+                System.out.println("- If lab is empty");
                 System.out.println("-------------------------");
                 infolab.monitorIsLabEmpty();
                 Thread.sleep(3000);
