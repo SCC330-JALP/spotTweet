@@ -20,19 +20,20 @@ public class Driver {
                 System.out.println("  - Motion");
                 System.out.println("  - Door sensor");
                 System.out.println("  - First person entered");
+                infolab.monitorKettle();
                 infolab.monitorActivities();
                 
                 System.out.println("- Sensor Batteries");
                 infolab.monitorBatteries();     
                 
-                System.out.println("- Zone 1 temperature and light");
-                infolab.monitorZone("zone1");
+                // System.out.println("- Zone 1 temperature and light");
+                // infolab.monitorZone2("zone1");
                 
                 System.out.println("- Zone 2 temperature and light");
-                infolab.monitorZone("zone2");   
+                infolab.monitorZone2("zone2");
                 
-                System.out.println("- Zone 3 temperature and light");
-                infolab.monitorZone("zone3");
+                // System.out.println("- Zone 3 temperature and light");
+                // infolab.monitorZone2("zone3");
 
 
                 System.out.println("- If lab is empty");
@@ -52,6 +53,8 @@ public class Driver {
 
                 Thread.sleep(120000); //2 mins
             }
+            
+
             
     }
 

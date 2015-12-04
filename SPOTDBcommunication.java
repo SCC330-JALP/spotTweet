@@ -9,10 +9,14 @@ import java.util.concurrent.*;
 public class SPOTDBcommunication{
 
     public static Firebase ref = new Firebase("https://sunsspot.firebaseio.com/");
+    public static Firebase refZone2 = new Firebase("https://sunsspot.firebaseio.com/zone2");
     public static Firebase notiRef = new Firebase("https://sunsspot.firebaseio.com/notification");
-    public static Firebase kettleRef = new Firebase("https://sunsspot.firebaseio.com/kettle");
+    public static Firebase kettleTimer = new Firebase("https://sunsspot.firebaseio.com/kettle/autoTimer");
+    public static Firebase kettleBoilRef = new Firebase("https://sunsspot.firebaseio.com/kettle/boil");
+    public static Firebase lampRef = new Firebase("https://sunsspot.firebaseio.com/lamps/task");
 
     public Notification newEntry = null;
+    public Boil boil = null;
 
     public Firebase spotSettings = null;
     public Firebase spotReadings = null;
@@ -20,6 +24,8 @@ public class SPOTDBcommunication{
     public Firebase spot = null;
     public Firebase spotZone = null;
     public int zoneNumber = 0;
+
+    public int autoTimer = 0;
 
     public long todays7am; //in milliseconds
     public boolean firstPersonEntered = false;
@@ -37,7 +43,6 @@ public class SPOTDBcommunication{
 
       try{
         todays7am = getTodays7am();
-        System.out.println(todays7am);
       }catch(ParseException e){
         System.out.println(e);
       }
@@ -176,8 +181,15 @@ public class SPOTDBcommunication{
                                             firstPersonEntered = true;
                                             DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
                                             Date date = new Date(entry.getTimestamp());
-                                            Tweet tweetFirstPerson = new Tweet("Thread-First-Person", " First person entered at " + dateFormat.format(date));
+                                            Tweet tweetFirstPerson = new Tweet("Thread-First-Person", "First person entered at " + dateFormat.format(date) + ", the kettle has started boiling  for you :)");
                                             tweetFirstPerson.start();
+                                            try{
+                                              boil();
+                                            }catch(InterruptedException e){
+                                              System.out.println(e);
+                                            }
+                                            
+                                            
                                           }
                                         }
                                     }
@@ -264,13 +276,13 @@ public class SPOTDBcommunication{
 
                     //If light is greater than 100
                     if(entry.getLight() > 100){
-                      Tweet tweetLight = new Tweet("Thread-Light-bright", "So bright in " + zoneName + "! - " + entry.getLight() + " (lm)");
+                      Tweet tweetLight = new Tweet("Thread-Light-bright", "So bright in " + zoneName + "! - " + entry.getLight() + " ");
                       tweetLight.start();
                     }
 
                     //If light is less than 10
                     if(entry.getLight() < 10){
-                      Tweet tweetLight2 = new Tweet("Thread-Light-dark", "So dark in " + zoneName + "! Turn on the light? - " + entry.getLight() + " (lm)");
+                      Tweet tweetLight2 = new Tweet("Thread-Light-dark", "So dark in " + zoneName + "! Turn on the light? - " + entry.getLight() + " ");
                       tweetLight2.start();
                     }
 
@@ -482,6 +494,156 @@ public class SPOTDBcommunication{
             }
         });
         done.await();
+    }
+
+    public void boil() throws InterruptedException{
+
+        // final CountDownLatch done = new CountDownLatch(1);
+
+        kettleBoilRef.setValue(new Boolean(true), new Firebase.CompletionListener() {
+            @Override
+            public void onComplete(FirebaseError firebaseError, Firebase firebase) {
+                System.out.println("Boiling...");
+                // done.countDown();
+            }
+        });
+        // done.await();
+    }
+
+    public void brightUp() throws InterruptedException{
+
+        // final CountDownLatch done = new CountDownLatch(1);
+
+        lampRef.setValue(new String("white"), new Firebase.CompletionListener() {
+            @Override
+            public void onComplete(FirebaseError firebaseError, Firebase firebase) {
+                System.out.println("Lamp on");
+                // done.countDown();
+            }
+        });
+        // done.await();
+    }
+
+    public void brightDown() throws InterruptedException{
+
+        // final CountDownLatch done = new CountDownLatch(1);
+
+        lampRef.setValue(new String("off"), new Firebase.CompletionListener() {
+            @Override
+            public void onComplete(FirebaseError firebaseError, Firebase firebase) {
+                System.out.println("Lamp on");
+                // done.countDown();
+            }
+        });
+        // done.await();
+    }
+
+    public void monitorZone2(final String zoneName){
+      com.firebase.client.Query queryRef = refZone2.limitToLast(1);
+
+      queryRef.addChildEventListener(new ChildEventListener() {
+
+          @Override
+          public void onChildAdded(DataSnapshot snapshot, String previousChildKey) {
+              Zone zone = snapshot.getValue(Zone.class);
+              // System.out.println("Light " + zone.getLight());
+              // System.out.println("Temp " + zone.getTemp());
+              // System.out.println("AutoTimer " + autoTimer);
+
+              //If latest temperature is more than 35
+              if(zone.getTemp() > 35){
+                Tweet tweetTemp = new Tweet("Thread-Temp-hot", "It's getting hot in " + zoneName + "! - " + zone.getTemp() + " degrees celsius");
+                tweetTemp.start();
+              }
+
+              //If latest temperature less than 20
+              if(zone.getTemp() < 20){
+                Tweet tweetTemp2 = new Tweet("Thread-Temp-cold", "It's getting cold in " + zoneName + "!  - " + zone.getTemp() + " degrees celsius");
+                tweetTemp2.start();
+              }
+
+              //If it's less than autoTimer -> Boil
+              if(zone.getTemp() < autoTimer){
+                System.out.println("AutoTimer: " + autoTimer);
+                try{
+                  boil();
+                }catch(InterruptedException e){
+                  System.out.println(e);
+                }
+              }
+
+              //If light is greater than 100
+              if(zone.getLight() > 100){
+                try{
+                  brightDown();
+                  monitorZone2(zoneName);
+                }catch(InterruptedException e){
+                  System.out.println(e);
+                }
+                Tweet tweetLight = new Tweet("Thread-Light-bright", "So bright in " + zoneName + "! - " + zone.getLight() + " ");
+                tweetLight.start();
+              }
+
+              //If light is less than 10
+              if(zone.getLight() < 10){
+                try{
+                  brightUp();
+                  monitorZone2(zoneName);
+                }catch(InterruptedException e){
+                  System.out.println(e);
+                }
+                Tweet tweetLight2 = new Tweet("Thread-Light-dark", "So dark in " + zoneName + "! Turn on the light? - " + zone.getLight() + " ");
+                tweetLight2.start();
+
+              }
+          }
+
+          @Override
+          public void onChildMoved(DataSnapshot snapshot, String previousChildKey) {}
+
+          @Override
+          public void onCancelled(FirebaseError firebaseError) {
+              System.out.println("The read failed: " + firebaseError.getMessage());
+          }
+
+          @Override
+          public void onChildRemoved(DataSnapshot snapshot) {}
+
+          @Override
+          public void onChildChanged(DataSnapshot snapshot, String previousChildKey) {}
+      });
+    }
+
+    public void monitorKettle(){
+      // com.firebase.client.Query queryRef = refZone2.limitToLast(1);
+
+      kettleTimer.addValueEventListener(new ValueEventListener() {
+
+          @Override
+          public void onDataChange(DataSnapshot snapshot) {
+              Integer time = snapshot.getValue(Integer.class);
+              autoTimer = time;
+              System.out.println(autoTimer);
+          }
+
+          // @Override
+          // public void onChildMoved(DataSnapshot snapshot, String previousChildKey) {
+          //   System.out.println("onChildMoved" + snapshot);
+          // }
+
+          @Override
+          public void onCancelled(FirebaseError firebaseError) {
+              System.out.println("The read failed: " + firebaseError.getMessage());
+          }
+
+          // @Override
+          // public void onChildRemoved(DataSnapshot snapshot) {}
+
+          // @Override
+          // public void onChildChanged(DataSnapshot snapshot, String previousChildKey) {
+          //   System.out.println("onChildChanged" + snapshot);
+          // }
+      });
     }
 
 }
